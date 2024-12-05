@@ -105,11 +105,27 @@ export const generateImage = async (post: GeneratedPost): Promise<string> => {
 };
 
 const formatPostForCanvas = (post: GeneratedPost): { mainText: string; insightText: string } => {
-  // Use only the subject emoji at the start
-  const mainText = `${post.subject.emoji} ${post.subject.text} ${post.context.text} ${post.achievement.text} v oblasti ${post.technology.text}!`;
+  // Helper function to combine emoji and text
+  const combineEmojiAndText = (emoji: string | undefined, text: string) => {
+    return emoji && emoji.trim() ? `${emoji} ${text}` : text;
+  };
+
+  // Format main text parts and combine them
+  const mainText = [
+    combineEmojiAndText(post.subject.emoji, post.subject.text),
+    post.context.text,
+    post.achievement.text,
+    `v oblasti${post.technology.text ? ` ${post.technology.text}` : ''}!`
+  ]
+    .filter(text => text && text.trim())
+    .join(' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
   
-  // Keep emoji only for insight
-  const insightText = `${post.insight.emoji} ${post.insight.text}`;
+  // Format insight text
+  const insightText = combineEmojiAndText(post.insight.emoji, post.insight.text)
+    .replace(/\s{2,}/g, ' ')
+    .trim();
   
   return { mainText, insightText };
 }; 

@@ -176,7 +176,7 @@ export const GeneratorContainer: React.FC = () => {
             Co mám dneska dát na LinkedIn? 🤔
           </h1>
           <p className="text-gray-600">
-            Generátor motivačních firemních příspěvků pro vaši denní dávku inspirace
+            Taky nevíte, co tam pořád dávat? Stejně všem jde jen o jedno. Přinášíme dávku inspirace pro vašich 15 minut slávy.
           </p>
         </header>
 
