@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GeneratedPost, Profile } from '../types';
 import { MessageSquare, ThumbsUp, Repeat2 } from 'lucide-react';
 import { generateImage } from '../utils/imageGenerator';
+import { formatCompletePost } from '../utils/generator';
 
 interface PostDisplayProps {
   post: GeneratedPost;
@@ -46,16 +47,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({
 
       {/* Post Content */}
       <div className="px-6 py-4 whitespace-pre-wrap text-lg">
-        {[
-          `${post.subject.emoji} ${post.subject.text}`,
-          `${post.context.emoji}${post.context.text}`,
-          `${post.achievement.emoji}${post.achievement.text}`,
-          `v oblasti ${post.technology.emoji}${post.technology.text}!`,
-          '',
-          `${post.insight.emoji} ${post.insight.text}`,
-          '',
-          post.hashtags.join(' ')
-        ].filter(Boolean).join(' ')}
+        {formatCompletePost(post)}
       </div>
 
       {/* Generated Image */}

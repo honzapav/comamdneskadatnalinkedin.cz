@@ -28,12 +28,15 @@ export const generatePost = (): GeneratedPost => {
   };
 };
 
-export const formatPost = (post: GeneratedPost): string => {
-  const { subject, context, achievement, technology, insight, hashtags } = post;
-  
-  return `${subject.emoji} ${subject.text} ${context.emoji} ${context.text} ${achievement.emoji} ${achievement.text} v oblasti ${technology.emoji} ${technology.text}!
+// Format the main text for enhancement
+export const formatMainText = (post: GeneratedPost): string => {
+  const { subject, context, achievement, technology } = post;
+  return `${subject.emoji} ${subject.text} ${context.text} ${achievement.text} v oblasti ${technology.text}!`;
+};
 
-${insight.emoji} ${insight.text}
-
-${hashtags.join(' ')}`;
+// Format the complete post with enhanced text
+export const formatCompletePost = (post: GeneratedPost): string => {
+  const mainText = post.subject.text; // Enhanced text is stored here
+  const { insight, hashtags } = post;
+  return `${mainText}\n\n${insight.emoji} ${insight.text}\n\n${hashtags.join(' ')}`;
 }; 

@@ -2,8 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { PostDisplay } from './PostDisplay';
 import { ControlPanel } from './ControlPanel';
 import { ImagePreview } from './ImagePreview';
-import { generatePost, formatPost } from '../utils/generator';
+import { generatePost, formatMainText, formatCompletePost } from '../utils/generator';
 import { generateImage } from '../utils/imageGenerator';
+import { enhanceText } from '../utils/textEnhancer';
 import { GeneratedPost } from '../types';
 
 interface Profile {
@@ -82,14 +83,39 @@ export const GeneratorContainer: React.FC = () => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [showShareInstructions, setShowShareInstructions] = useState(false);
   const [profile, setProfile] = useState<Profile>(generateRandomProfile());
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const handleGenerate = useCallback(() => {
-    setProfile(generateRandomProfile());
-    setPost(generatePost());
+  const handleGenerate = useCallback(async () => {
+    // Generate new post and profile
+    const newPost = generatePost();
+    const newProfile = generateRandomProfile();
+    
+    setIsEnhancing(true);
+    try {
+      // Get the main text and enhance it
+      const mainText = formatMainText(newPost);
+      const enhancedText = await enhanceText(mainText);
+      
+      // Store enhanced text in the post structure
+      const enhancedPost = {
+        ...newPost,
+        subject: { ...newPost.subject, text: enhancedText }
+      };
+      
+      // Update state
+      setPost(enhancedPost);
+      setProfile(newProfile);
+    } catch (error) {
+      console.error('Failed to enhance text:', error);
+      setPost(newPost);
+      setProfile(newProfile);
+    } finally {
+      setIsEnhancing(false);
+    }
   }, []);
 
   const handleCopy = useCallback(() => {
-    const formattedPost = formatPost(post);
+    const formattedPost = formatCompletePost(post);
     navigator.clipboard.writeText(formattedPost);
     showNotification('Příspěvek byl zkopírován do schránky!');
   }, [post]);
@@ -99,7 +125,7 @@ export const GeneratorContainer: React.FC = () => {
       setIsGeneratingImage(true);
       const imageDataUrl = await generateImage(post);
       
-      const formattedPost = formatPost(post);
+      const formattedPost = formatCompletePost(post);
       await navigator.clipboard.writeText(formattedPost);
 
       const link = document.createElement('a');
@@ -176,7 +202,7 @@ export const GeneratorContainer: React.FC = () => {
             Co mám dneska dát na LinkedIn? 🤔
           </h1>
           <p className="text-gray-600">
-            Taky nevíte, co tam pořád dávat? Stejně všem jde jen o jedno. Přinášíme dávku inspirace pro vašich 15 minut slávy.
+            Generátor motivačních příspěvků pro vašich 15 minut slávy
           </p>
         </header>
 
@@ -187,6 +213,7 @@ export const GeneratorContainer: React.FC = () => {
           onCopy={handleCopy}
           onShare={handleShare}
           onGenerateImage={handleGenerateImage}
+          isEnhancing={isEnhancing}
         />
 
         {isGeneratingImage && (
@@ -230,7 +257,8 @@ export const GeneratorContainer: React.FC = () => {
 
       <footer className="max-w-4xl mx-auto w-full mt-12 text-center">
         <p className="text-gray-500 text-sm italic">
-          Při generování příspěvků nezneužíváme umělou inteligenci. Vytvořeno s 🧠 & ♥️
+          Při generování příspěvků nezneužíváme umělou inteligenci.
+          <span className="line-through ml-1">Moc.</span>
         </p>
       </footer>
     </div>
