@@ -1,9 +1,8 @@
 import { Handler } from '@netlify/functions';
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 const SYSTEM_PROMPT = `Jsi expert na firemní komunikaci na LinkedIn v češtině.
 Tvým úkolem je vylepšit text příspěvku podle těchto pravidel:
@@ -43,17 +42,9 @@ const handler: Handler = async (event) => {
       };
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: text }
-      ],
-      temperature: 0.3,
-      max_tokens: 200,
-    });
-
-    const enhancedText = completion.choices[0].message.content?.trim() || text;
+    const prompt = `${SYSTEM_PROMPT}\n\nUser: ${text}`;
+    const result = await model.generateContent(prompt);
+    const enhancedText = result.response.text().trim() || text;
 
     return {
       statusCode: 200,
